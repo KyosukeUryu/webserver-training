@@ -15,7 +15,7 @@ server = WEBrick::HTTPServer.new({
   Signal.trap(signal){ server.shutdown }
 }
 
-server.mount('/test', WEBrick::HTTPServlet::ERBHandler, 'test.html.erb')
+server.mount('/', WEBrick::HTTPServlet::ERBHandler, 'test.html.erb')
 
 server.mount('/sample', WEBrick::HTTPServlet::ERBHandler, 'sample.html.erb')
 
