@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <h1>テスト！！！！！！！！！！！</h1>
+
+    <% require 'pg' %>
+
+    <% connection = PG::connect(dbname: "goya") %>
+    <% connection.internal_encoding = "UTF-8" %>
+
+    <form action='indicate.cgi' method='POST'>
+      下記に文字を入力してください<br><br>
+      <input type="text"  name='input' ><br>
+      <input type="submit" name="送信" >
+    </form>
+
+    <% result = connection.exec("select weight, give_for from crops;") %>
+    <% data = [] %>
+
+    <% result.each do |record| %>
+      <%  data << "ゴーヤの大きさ：#{record["weight"]}　売った相手：#{record["give_for"]}" %>
+    <% end %>
+
+    <form action="goya.cgi" method="POST">
+      <input type="text" name="goya" value="<%= data.join(' ') %> ">
+      <input type="submit" name="送信" >
+    </form>
+
+    <% give_away_result = connection.exec("select * from crops where give_for != '自家消費'; ") %>
+    <% give_away_data = [] %>
+
+    <% give_away_result.each do |rec| %>
+      <% give_away_data << "誰に売ったか：#{rec["give_for"]} 品質は：#{rec["quality"]}" %>
+    <% end %>
+
+    <form action="give_away.cgi" method="POST">
+      <label for="name1">他の人に売ったゴーヤ</label>
+      <input type="text" name="give_away" value="<%= give_away_data.join(' ') %>" id="name1">
+      <input type="submit" name="送信">
+    </form>
+
+    <% bad_result = connection.exec("select quality, give_for from crops where quality = false; ") %>
+    <% bad_data = [] %>
+
+    <% bad_result.each do |rec2| %>
+      <% bad_data << "悪いゴーヤ：#{rec2["quality"]} 売った相手：#{rec2["give_for"]}" %>
+    <% end %>
+
+    <form action="bad.cgi" method="POST">
+      <label for="name2">悪いゴーヤ</label>
+      <input type="text" name="bad" value="<%= bad_data.join(' ') %>" id="name2">
+      <input type="submit" name="送信">
+    </form>
+
+
+    <form action="sample" method="get">
+      <input type="submit" name="サンプル行き" value="サンプルへ">
+    </form>
+  </body>
+</html>
